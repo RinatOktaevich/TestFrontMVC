@@ -1,0 +1,105 @@
+﻿
+<h2>Page</h2>
+
+
+<div class="loginForm">
+    <h3>Вход на сайт</h3>
+    <label>Введите email</label><br />
+    <input type="email" value="rd@mail.ru" id="emailLogin" /> <br /><br />
+    <label>Введите пароль</label><br />
+    <input type="password" value="deadmau5" id="passwordLogin" /><br /><br />
+    <input type="submit" id="submitLogin" value="Логин" />
+</div>
+
+<text id="message"></text>
+
+
+@section scripts{
+    <script type="text/javascript">
+        $(function () {
+            //...........................
+            var tokenKey = "tokenInfo";
+            $('#submitLogin').click(function (e) {
+                e.preventDefault();
+                var loginData = {
+                    grant_type: 'password',
+                    username: $('#emailLogin').val(),
+                    password: $('#passwordLogin').val()
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'http://localhost:65266/Token',
+                    data: loginData
+                }).success(function (data) {
+                    $('.userName').text(data.userName);
+                    $('.userInfo').css('display', 'block');
+                    $('.loginForm').css('display', 'none');
+                    // сохраняем в хранилище sessionStorage токен доступа
+                    sessionStorage.setItem(tokenKey, data.access_token);
+                    console.log(data.access_token);
+                }).fail(function (data) {
+                    alert('При логине возникла ошибка');
+                    $('#message').text = data.access_token;
+                });
+            });
+
+            $('#logOut').click(function (e) {
+                e.preventDefault();
+                sessionStorage.removeItem(tokenKey);
+            });
+        })
+
+        </script>
+
+
+
+<script type="text/javascript">
+$(function () {
+        var tokenKey = "tokenInfo";
+        //..................................
+        $('#getItemsButton').click(function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'post',
+                url: 'http://localhost:65266/api/Tracks/AudioListAuth?iduser=bbe4d125-d0ad-40f8-b355-f81a9e829e24&idAuth=3bee19bb-7189-4d4a-a567-2b9701496cb1',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                beforeSend: function (xhr) {
+
+                    var token = sessionStorage.getItem(tokenKey);
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+                },
+                success: function (data) {
+                    alert(data);
+                },
+                fail: function (data) {
+                    alert(data);
+                }
+            });
+        });
+    })
+</script>
+}
+
+
+
+<div>
+    <input type="submit" id="getItemsButton" value="Получить данные" />
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
